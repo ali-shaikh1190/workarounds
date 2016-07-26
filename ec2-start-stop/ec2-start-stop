@@ -1,0 +1,106 @@
+#!/usr/bin/python
+#-- Qamar -To Start Stop ec2 Instances by Private IP-Address
+import yaml
+import boto.ec2
+import formatter
+import textwrap
+import argparse
+import multiprocessing
+import socket
+from time import sleep
+
+def status(conn,instance_id):
+
+        inst = conn.get_all_instances(instance_ids=instance_id)
+        instance = inst[0].instances[0]
+        status = conn.get_all_instance_status(instance_ids=[instance.id])
+
+        if instance.state == "stopped":
+                print instance.private_ip_address , "Status", instance.state, instance.tags['Name']
+        if instance.state == "running":
+
+                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                try:
+                        s.connect((instance.private_ip_address, 22))
+                        ssh= "Port 22 reachable"
+                except socket.error as e:
+                        ssh = "Error on connect: %s" % e
+                        s.close()
+                print  instance.private_ip_address,"System",status[0].system_status, "Instance", status[0].instance_status , instance.tags['Name'], ssh
+
+def start(conn,instance_id):
+
+        inst = conn.get_all_instances(instance_ids=instance_id)
+        instance = inst[0].instances[0]
+        if instance.state == "stopped":
+                print  "Starting Up Instance", instance.private_ip_address, instance.tags['Name']
+                instance.start()
+                while instance.update() != "running":
+                       sleep(30)
+                       print "Waiting for instance %s to Start" %(str(instance.private_ip_address))
+        else:
+                print "WARNING: %s is already running" %(str(instance.private_ip_address))
+
+def stop(conn,instance_id):
+
+        inst = conn.get_all_instances(instance_ids=instance_id)
+        instance = inst[0].instances[0]
+        if instance.state == "stopped":
+                print "WARNING: %s is already Stopped" %(str(instance.private_ip_address))
+        else:
+                print  "Stopping Instance", instance.private_ip_address, instance.tags['Name']
+                instance.stop()
+
+def get_instances(conn,filters):
+
+        result_list = conn.get_all_instances(filters=filters)
+        instances = [i for r in result_list for i in r.instances]
+        return instances
+
+if __name__ == "__main__":
+
+        parser = argparse.ArgumentParser(prog='ec2-start-stop',
+                     formatter_class=argparse.RawDescriptionHelpFormatter,
+                     description=textwrap.dedent('''\
+                        Example:
+                        -------------------------------------------------------------------------------------
+                            ec2-start-stop -s -ip <ipaddress>
+                            ec2-start-stop -start -ip <ipaddress>
+                            ec2-start-stop -stop -ip <ipaddress>
+                            Note: -ip <ipadress> <ipaddress> |Multiple ip-adress can be given space seperated
+                            Regions Name:               RegionID:
+                            US East (N. Virginia)       us-east-1
+                            US West (Oregon)            us-west-2
+                            Asia Pacific (Singapore)    ap-southeast-1
+                            Asia Pacific (Sydney)       ap-southeast-2
+                            Asia Pacific (Tokyo)        ap-northeast-1
+                            EU (Frankfurt)              eu-central-1
+                            EU (Ireland)                eu-west-1
+                        '''))
+        parser.add_argument("-s","--status", dest='check_status', action='store_true',help="Provide status of Instances Running or Stopped", required=False )
+        parser.add_argument("-start","--start", dest='check_start', action='store_true',help="Will START Instance", required=False )
+        parser.add_argument("-stop","--stop", dest='check_stop', action='store_true',help="Will STOP Instance", required=False )
+        parser.add_argument("-ip","--ip",nargs='+',dest='server_ip',help="Private IP address of Instance", required=True )
+        args = parser.parse_args()
+        with open("config.yaml",'r') as yml_file:
+            cfg = yaml.load(yml_file)
+        credentials = {'aws_access_key_id': 'XXXXXXXXXXXXXX', 'aws_secret_access_key': 'XXXXXXXXXXXXXXXXXXX'}
+        credentials['aws_access_key_id'] = cfg['aws_access_key_id']
+        credentials['aws_secret_access_key'] = cfg['aws_secret_access_key']
+        region = cfg['region']
+        conn = boto.ec2.connect_to_region(region,**credentials)
+        ip_list =  args.server_ip 
+        filters = { "private_ip_address": ip_list}
+        instance_list = get_instances(conn,filters)
+        instance_list = [i.id for i in instance_list]
+        if args.check_status:
+                for instance in instance_list:
+                        status(conn,instance)
+
+        if args.check_start:
+                for instance in instance_list:
+                        start(conn,instance)
+
+        if args.check_stop:
+                for instance in instance_list:
+                        stop(conn,instance)
