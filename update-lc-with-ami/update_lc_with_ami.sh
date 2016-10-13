@@ -6,10 +6,10 @@
 
 INSTANCE_IP=$1
 LC_NAME="Dynamic-Launch-ConfigurationAutoScaling-ProdA"
-key_name="treebo"
-sec_group="sg-073b7562"
+key_name="ec2-keypair-name"
+security_group="sg-id"
 instance_type="t2.medium"
-instance_profile="TreeboAutomationS3"
+instance_profile="Automation"
 aminame="web-prod-ami-$(date +%Y-%m-%d)"
 
 LC_NAME_CHECK="$(aws autoscaling describe-launch-configurations --launch-configuration-names LaunchConfigurationAutoScalingProdA --query 'LaunchConfigurations[*].[LaunchConfigurationName]' --output text)"
