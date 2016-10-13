@@ -1,4 +1,4 @@
-#ec2-shrink-ebs-root-volume
+#update_lc_with_ami
 
 This Script creates New Launch Configuration for AutoScaling with given Name in parameter LC_NAME.
 #####Steps
