@@ -19,7 +19,7 @@ None
 
 Example
 -------
-./update_lc_with_ami.sh <ip>
+./update_lc_with_ami.sh ec2-private-ip
 
 ip = ec2 instance private ip.
 
