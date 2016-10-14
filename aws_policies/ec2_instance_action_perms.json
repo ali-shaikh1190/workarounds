@@ -1,0 +1,22 @@
+{
+    "Statement": [
+        {
+            "Action": [
+                "ec2:Describe*",
+                "ec2:StartInstances",
+                "ec2:StopInstances"
+            ],
+            "Effect": "Allow",
+            "Resource": [
+                "arn:aws:ec2:us-east-1:accnt-id--xx:instance/instance-id",
+                "arn:aws:ec2:us-east-1:accnt-id--xx:instance/instance-id",
+                "arn:aws:ec2:us-east-1:accnt-id--xx:instance/instance-id"
+            ],
+            "Condition": {
+                "StringEquals": {
+                    "ec2:Region": "us-east-1"
+                }
+            }
+        }
+    ]
+}
