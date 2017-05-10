@@ -11,13 +11,15 @@
 import boto
 import argparse
 import textwrap
+import sys
 
 def check_instance_sg(sg_array,sgs):
     for sg in sgs:
         if sg.id in sg_array:
             sec_rules = sg.rules
             rule_nums = len(sec_rules)
-            print "\n#############################################################"
+            print "\n"
+            print "#" * 62
             if len(sg.instances()) == 0:
                 print "Security group {} is not attached to any instance: \n".format(sg.id)
             else:
@@ -37,12 +39,17 @@ if __name__ == "__main__":
                             check-sg-instances -s <security-group-id>
                         '''))
     parser.add_argument("-sg", "--sgids", type=str, nargs="*", dest="securitygroupids" ,help='comma delimited list input')
-    args = parser.parse_args()
-    sg_array = [str(item) for item in args.securitygroupids[0].split(',')]
-
+    try:
+        args = parser.parse_args()
+        sg_array = [str(item) for item in args.securitygroupids[0].split(',')]
+    except:
+        parser.print_help()
+        sys.exit(0)
     try:
         conn = boto.connect_ec2()
     except boto.exception.BotoServerError as err:
         print err
+        sys.exit(1)
+
     sgs = conn.get_all_security_groups()
     check_instance_sg(sg_array,sgs)
