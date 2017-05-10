@@ -1,0 +1,48 @@
+#!/usr/bin/python
+# Description: To list instances mapped to given security group.
+# Dependencies: boto textwrap
+# Author: Qamar Ali Shaikh : Github - @ali-shaikh1190
+#
+# Usage: 
+#      check-sg-instances -sg <security-group-id>
+#      check-sg-instances -sg <security-group-id>,<security-group-id>,<security-group-id>
+#
+#
+import boto
+import argparse
+import textwrap
+
+def check_instance_sg(sg_array,sgs):
+    for sg in sgs:
+        if sg.id in sg_array:
+            sec_rules = sg.rules
+            rule_nums = len(sec_rules)
+            print "\n#############################################################"
+            if len(sg.instances()) == 0:
+                print "Security group {} is not attached to any instance: \n".format(sg.id)
+            else:
+                print "Security group {} is attached to following instances: \n".format(sg.id)
+                for instance in sg.instances():
+                        print "Instance_id : {}".format(instance.id)
+                print "\nIngress Rules : \n"
+                for g in range(rule_nums):
+                    print "Port/Protocol: {}  -> Source: {} ".format(sg.rules[g],sg.rules[g].grants)
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(prog='check-sg-instances',
+                     formatter_class=argparse.RawDescriptionHelpFormatter,
+                     description=textwrap.dedent('''\
+                        Example:
+                        -------------------------------------------------------------------------------------
+                            check-sg-instances -s <security-group-id>
+                        '''))
+    parser.add_argument("-sg", "--sgids", type=str, nargs="*", dest="securitygroupids" ,help='comma delimited list input')
+    args = parser.parse_args()
+    sg_array = [str(item) for item in args.securitygroupids[0].split(',')]
+
+    try:
+        conn = boto.connect_ec2()
+    except boto.exception.BotoServerError as err:
+        print err
+    sgs = conn.get_all_security_groups()
+    check_instance_sg(sg_array,sgs)
