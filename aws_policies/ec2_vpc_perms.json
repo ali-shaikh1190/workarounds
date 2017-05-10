@@ -3,10 +3,10 @@
    "Statement": [{
       "Effect": "Allow",
       "Action": "ec2:RunInstances",
-      "Resource": "arn:aws:ec2:us-east-1:827061540866:subnet/subnet-dc17e385",
+      "Resource": "arn:aws:ec2:us-east-1:<account-id>:subnet/subnet-dc17e385",
         "Condition": {
          "StringEquals": {
-            "ec2:Vpc": "arn:aws:ec2:us-east-1:827061540866:vpc/vpc-f510ba90"
+            "ec2:Vpc": "arn:aws:ec2:us-east-1:<account-id>:vpc/vpc-f510ba90"
             }
       }
    },
@@ -24,11 +24,11 @@
       "Effect": "Allow",
       "Action": "ec2:RunInstances",
       "Resource": [ 
-         "arn:aws:ec2:us-east-1:827061540866:instance/*",
-         "arn:aws:ec2:us-east-1:827061540866:volume/*",
-         "arn:aws:ec2:us-east-1:827061540866:network-interface/*",
-         "arn:aws:ec2:us-east-1:827061540866:key-pair/*",
-         "arn:aws:ec2:us-east-1:827061540866:security-group/*"
+         "arn:aws:ec2:us-east-1:<account-id>:instance/*",
+         "arn:aws:ec2:us-east-1:<account-id>:volume/*",
+         "arn:aws:ec2:us-east-1:<account-id>:network-interface/*",
+         "arn:aws:ec2:us-east-1:<account-id>:key-pair/*",
+         "arn:aws:ec2:us-east-1:<account-id>:security-group/*"
         
          ]
       },
@@ -39,7 +39,7 @@
                 "ec2:TerminateInstances",
                 "ec2:StopInstances",
                 "ec2:StartInstances"],
-             "Resource": "arn:aws:ec2:us-east-1:827061540866:instance/*",
+             "Resource": "arn:aws:ec2:us-east-1:<account-id>:instance/*",
              "Condition": {
                  "StringEquals": {"ec2:ResourceTag/Department": "Dev"}
              }
