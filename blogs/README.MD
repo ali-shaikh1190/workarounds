@@ -5,6 +5,9 @@ This post is a work in progress to try to collect some interesting blogs by deve
 Julia Evans http://jvns.ca/
 A canadian developer who writes very interesting things about systems.
 
+Martin Fowler https://martinfowler.com
+A British software developer, author and international public speaker on software development,specializing in object-oriented analysis and design, MicroServices, CI/CD, UML, patterns, and agile software.
+
 Peter Bailis http://www.bailis.org/blog/
 Stanford Professor. Focuses on distributed systems
 
